@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 type Station struct {
 	Entity
 	energyType EnergyType
@@ -10,9 +12,9 @@ type StationConfig struct {
 	energyType EnergyType
 }
 
-func NewStationConfig(cap uint32, waitDurationRange DurationRange, energyType EnergyType, next EntityInterface) *StationConfig {
+func NewStationConfig(cap uint32, waitDurationRange DurationRange, energyType EnergyType) *StationConfig {
 	return &StationConfig{
-		EntityConfig: *NewEntityConfig(cap, waitDurationRange, next),
+		EntityConfig: *NewEntityConfig(cap, waitDurationRange),
 		energyType:   energyType,
 	}
 }
@@ -24,17 +26,6 @@ func NewStation(config StationConfig) *Station {
 	}
 }
 
-func (s *Station) Open() {
-	go s.Entity.Open(
-		func(car *Car) {
-			car.ExitStationQueueAndStartPumping()
-		},
-		func(car *Car) {
-			car.StopPumpingAndEnterCashMachineQueue()
-		},
-	)
-}
-
-func (s *Station) InstanceCount(count *uint32) {
-	s.activeEntityInstances = count
+func (s Station) String() string {
+	return fmt.Sprintf("%s_station", s.energyType)
 }

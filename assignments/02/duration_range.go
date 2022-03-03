@@ -6,8 +6,7 @@ import (
 )
 
 type DurationRange struct {
-	min time.Duration
-	max time.Duration
+	min, max time.Duration
 }
 
 func NewDurationRange(min, max time.Duration) *DurationRange {
@@ -22,5 +21,5 @@ func (r DurationRange) RandomDuration() time.Duration {
 		return r.min
 	}
 
-	return time.Duration(rand.Float64()*(float64(r.max-r.min)) + float64(r.min))
+	return time.Duration(rand.Int63n(int64(r.max-r.min)) + int64(r.min))
 }

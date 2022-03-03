@@ -16,15 +16,32 @@ const (
 )
 
 func main() {
+	fmt.Println("starting...")
+
 	stats := NewStats()
-	cashMachineConfig := DefaultCashMachineConfig(stats)
+	cashMachineConfig := DefaultCashMachineConfig()
 	cashMachine := NewCashMachine(*cashMachineConfig)
-	stationsConfig := DefaultStationsConfig(cashMachine)
+	stationsConfig := DefaultStationsConfig()
 	stations := InitStations(*stationsConfig)
+	quitChan := make(chan interface{})
 
-	stats.Open()
-	OpenAndAcceptCars(cashMachine, stations, CarsToComePerStation)
-	stats.WaitUntilFinished()
+	fmt.Println("sending cars...")
+	stats.Measure("whole_process", func() {
+		SendCars(stations, cashMachine, stats, quitChan)
+		stations.OpenAll()
+		cashMachine.Open()
 
+		fmt.Println("processing...")
+		<-quitChan // wait until everything is processed
+
+		fmt.Println("finishing...")
+		stations.CloseAll()
+		cashMachine.Close()
+	})
+
+	if err := stats.Process(); err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Println(stats)
 }

@@ -7,8 +7,4 @@ const (
 	Electric = "electric"
 )
 
-var (
-	EnergyTypes = []EnergyType{Gas, Diesel, Lpg, Electric}
-)
-
 type EnergyType string

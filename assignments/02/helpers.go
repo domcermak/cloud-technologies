@@ -1,36 +1,25 @@
 package main
 
-import (
-	"sync"
-	"time"
-)
+func SendCars(stations Stations, cashMachine *CashMachine, stats *Stats, quitChan chan<- interface{}) {
+	for i := 0; i < CarsToComePerStation; i++ {
+		for _, station := range stations {
 
-func OpenAndAcceptCars(cashMachine *CashMachine, stations []*Station, carsToComePerStation uint) {
-	cashMachine.Open()
-	for _, station := range stations {
-		station.Open()
+			// this function represents a car
+			go func(quitChan chan<- interface{}, stats *Stats, entities ...EntityInterface) {
+				for _, entity := range entities {
+					stats.Measure(entity.String()+"_wait_queue", func() {
+						entity.WaitUntilAvailable()
+					})
+					stats.Measure(entity.String()+"_processing", func() {
+						entity.ProcessCar()
+					})
+				}
+				stats.Done()
+
+				if stats.GetCarCount() == CarsToComePerStation*int64(len(stations)) {
+					quitChan <- 0
+				}
+			}(quitChan, stats, station, cashMachine)
+		}
 	}
-
-	time.Sleep(time.Second) // a delay to open all stations
-
-	wg := &sync.WaitGroup{}
-	wg.Add(len(stations))
-	for _, station := range stations {
-		go sendCars(station, carsToComePerStation, wg)
-	}
-	wg.Wait()
-
-	for _, station := range stations {
-		station.Close()
-	}
-}
-
-func sendCars(station *Station, carsToComePerStation uint, wg *sync.WaitGroup) {
-	for i := uint(0); i < carsToComePerStation; i++ {
-		car := Car{energyType: station.energyType}
-		car.EnterStationQueue()
-
-		station.AcceptCar(car)
-	}
-	wg.Done()
 }
