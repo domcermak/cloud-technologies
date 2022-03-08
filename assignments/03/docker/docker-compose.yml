@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  ctc_server:
+    build:
+      context: ../../..
+      dockerfile: assignments/03/docker/server/Dockerfile
+    ports:
+      - '1234:1234'
+    depends_on:
+      - 'postgres_production'
+    environment:
+      SERVER_ADDR: 'localhost:1234'
+      PG_HOST: 'postgres_production'
+      PG_PORT: '5432'
+      PG_DATABASE: 'postgres'
+      PG_USERNAME: 'postgres'
+      PG_PASSWORD: 'postgres'
+    networks:
+      - ctc_network
+
+  postgres_production:
+    image: 'postgres:14.2-alpine'
+    restart: 'always'
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+    ports:
+      - '5423:5432'
+    volumes:
+      - ./sql/structure.sql:/docker-entrypoint-initdb.d/create.sql
+      - ./sql/data.sql:/docker-entrypoint-initdb.d/fillin.sql
+    networks:
+      - ctc_network
+
+networks:
+  ctc_network: {}

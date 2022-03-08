@@ -10,5 +10,5 @@ services:
     ports:
       - '1111:5432'
     volumes:
-      - ./sql/structure.sql:/docker-entrypoint-initdb.d/create.sql
+      - ../../../docker/sql/structure.sql:/docker-entrypoint-initdb.d/create.sql
       - ./sql/data.sql:/docker-entrypoint-initdb.d/fillin.sql

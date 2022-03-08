@@ -10,3 +10,11 @@ Product management API
    2. Operations - get, list, update, delete
    4. Backend - SQL or NOSQL database (Redis, Mongo, Cassandra)
    3. Include simple testing client in your repository
+
+## Run server
+> docker-compose -f docker/docker-compose.yml up -d
+
+## Run tests
+> docker-compose -f tests/db/docker-compose.yml up -d
+> cd tests/server
+> go test -v
