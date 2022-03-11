@@ -1,10 +1,12 @@
 package server
 
 import (
-	"domcermak/ctc/assignments/03/cmd/server"
+	"domcermak/ctc/assignments/03/tests/helpers"
 	"fmt"
 	"testing"
 	"time"
+
+	"domcermak/ctc/assignments/03/cmd/server"
 )
 
 const (
@@ -18,7 +20,7 @@ var (
 
 func TestMain(m *testing.M) {
 	var err error
-	postgres, err = connect()
+	postgres, err = helpers.TestPostgresConnect()
 	if err != nil {
 		panic(fmt.Sprintf("postgres is offline: %v", err))
 	}
@@ -27,16 +29,6 @@ func TestMain(m *testing.M) {
 	poolMock = defaultMock()
 	runServerInParallel(poolMock)
 	m.Run()
-}
-
-func connect() (*server.Postgres, error) {
-	return server.NewPostgres(
-		"localhost",
-		1111,
-		"postgres",
-		"postgres",
-		"postgres",
-	)
 }
 
 func runServerInParallel(pool server.Pool) {

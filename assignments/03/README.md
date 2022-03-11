@@ -14,7 +14,12 @@ Product management API
 ## Run server
 > docker-compose -f docker/docker-compose.yml up -d
 
+## Run client
+> go run client.go
+
 ## Run tests
-> docker-compose -f tests/db/docker-compose.yml up -d
-> cd tests/server
-> go test -v
+### First terminal window
+> docker-compose -f tests/db/docker-compose.yml up
+
+### Second terminal window
+> go test -tags "integration" ./tests/client ./tests/server ./tests/integration

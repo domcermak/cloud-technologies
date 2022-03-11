@@ -2,13 +2,15 @@ package server
 
 import (
 	"bytes"
-	"domcermak/ctc/assignments/03/cmd/server"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"testing"
 	"time"
+
+	"domcermak/ctc/assignments/03/cmd/server"
+	"domcermak/ctc/assignments/03/tests/helpers"
 )
 
 func TestServer_ListProducts(t *testing.T) {
@@ -20,7 +22,7 @@ func TestServer_ListProducts(t *testing.T) {
 	}{
 		{
 			name:             "Returns a non-empty list",
-			expectedProducts: allProducts(),
+			expectedProducts: helpers.AllTestProducts(),
 		},
 		{
 			name:             "Returns an empty list of products",
@@ -32,7 +34,7 @@ func TestServer_ListProducts(t *testing.T) {
 		}
 
 		res, err := client.Get(fmt.Sprintf("http://%s/products", addr))
-		expect(nil, err, t)
+		helpers.Expect(nil, err, t)
 		func() {
 			defer func(Body io.ReadCloser) {
 				err := Body.Close()
@@ -41,18 +43,18 @@ func TestServer_ListProducts(t *testing.T) {
 				}
 			}(res.Body)
 
-			expect(http.StatusOK, res.StatusCode, t)
+			helpers.Expect(http.StatusOK, res.StatusCode, t)
 
 			var receivedProducts []server.Product
 			err := json.NewDecoder(res.Body).Decode(&receivedProducts)
-			expect(nil, err, t)
-			expect(len(tc.expectedProducts), len(receivedProducts), t)
+			helpers.Expect(nil, err, t)
+			helpers.Expect(len(tc.expectedProducts), len(receivedProducts), t)
 
 			for i, receivedProduct := range receivedProducts {
-				expect(tc.expectedProducts[i].Id, receivedProduct.Id, t)
-				expect(tc.expectedProducts[i].Name, receivedProduct.Name, t)
-				expect(tc.expectedProducts[i].Price, receivedProduct.Price, t)
-				expect(tc.expectedProducts[i].Amount, receivedProduct.Amount, t)
+				helpers.Expect(tc.expectedProducts[i].Id, receivedProduct.Id, t)
+				helpers.Expect(tc.expectedProducts[i].Name, receivedProduct.Name, t)
+				helpers.Expect(tc.expectedProducts[i].Price, receivedProduct.Price, t)
+				helpers.Expect(tc.expectedProducts[i].Amount, receivedProduct.Amount, t)
 			}
 		}()
 	}
@@ -69,7 +71,7 @@ func TestServer_GetProduct(t *testing.T) {
 	}{
 		{
 			name:            "Successfully returns the product",
-			expectedProduct: allProducts()[0],
+			expectedProduct: helpers.AllTestProducts()[0],
 			statusCode:      http.StatusOK,
 			err:             nil,
 		},
@@ -82,11 +84,11 @@ func TestServer_GetProduct(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			poolMock.get = func(id server.Id) (server.Product, error) {
-				expect(tc.expectedProduct.Id, id, t)
+				helpers.Expect(tc.expectedProduct.Id, id, t)
 				return tc.expectedProduct, tc.err
 			}
 			res, err := client.Get(fmt.Sprintf("http://%s/products/%d", addr, tc.expectedProduct.Id))
-			expect(nil, err, t)
+			helpers.Expect(nil, err, t)
 			func() {
 				defer func(Body io.ReadCloser) {
 					if err := Body.Close(); err != nil {
@@ -94,25 +96,25 @@ func TestServer_GetProduct(t *testing.T) {
 					}
 				}(res.Body)
 
-				expect(tc.statusCode, res.StatusCode, t)
+				helpers.Expect(tc.statusCode, res.StatusCode, t)
 				decoder := json.NewDecoder(res.Body)
 
 				if tc.err != nil {
 					mapping := make(map[string]string)
 					err := decoder.Decode(&mapping)
-					expect(nil, err, t)
-					expect(tc.err.Error(), mapping["error"], t)
+					helpers.Expect(nil, err, t)
+					helpers.Expect(tc.err.Error(), mapping["error"], t)
 					return
 				}
 
 				var receivedProduct server.Product
 				err := decoder.Decode(&receivedProduct)
-				expect(nil, err, t)
+				helpers.Expect(nil, err, t)
 
-				expect(tc.expectedProduct.Id, receivedProduct.Id, t)
-				expect(tc.expectedProduct.Name, receivedProduct.Name, t)
-				expect(tc.expectedProduct.Price, receivedProduct.Price, t)
-				expect(tc.expectedProduct.Amount, receivedProduct.Amount, t)
+				helpers.Expect(tc.expectedProduct.Id, receivedProduct.Id, t)
+				helpers.Expect(tc.expectedProduct.Name, receivedProduct.Name, t)
+				helpers.Expect(tc.expectedProduct.Price, receivedProduct.Price, t)
+				helpers.Expect(tc.expectedProduct.Amount, receivedProduct.Amount, t)
 			}()
 		})
 	}
@@ -149,29 +151,29 @@ func TestServer_UpdateProduct(t *testing.T) {
 		},
 	} {
 		poolMock.get = func(id server.Id) (server.Product, error) {
-			expect(sampleProduct.Id, id, t)
+			helpers.Expect(sampleProduct.Id, id, t)
 			return sampleProduct, tc.expectedErr
 		}
 		t.Run(tc.name, func(t *testing.T) {
 			poolMock.update = func(id server.Id, params server.UpdateAttributes) error {
-				expect(sampleProduct.Id, id, t)
-				expect(tc.params, params, t)
+				helpers.Expect(sampleProduct.Id, id, t)
+				helpers.Expect(tc.params, params, t)
 
 				return tc.expectedErr
 			}
 
 			jsonData, err := json.Marshal(tc.params)
-			expect(nil, err, t)
+			helpers.Expect(nil, err, t)
 
 			req, err := http.NewRequest(
 				http.MethodPatch,
 				fmt.Sprintf("http://%s/products/%d", addr, sampleProduct.Id),
 				bytes.NewBuffer(jsonData),
 			)
-			expect(nil, err, t)
+			helpers.Expect(nil, err, t)
 
 			res, err := client.Do(req)
-			expect(nil, err, t)
+			helpers.Expect(nil, err, t)
 
 			func() {
 				defer func(Body io.ReadCloser) {
@@ -180,7 +182,7 @@ func TestServer_UpdateProduct(t *testing.T) {
 					}
 				}(res.Body)
 
-				expect(tc.expectedStatusCode, res.StatusCode, t)
+				helpers.Expect(tc.expectedStatusCode, res.StatusCode, t)
 				if tc.expectedStatusCode == http.StatusNoContent {
 					return // nothing to parse
 				}
@@ -190,7 +192,7 @@ func TestServer_UpdateProduct(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				expect(tc.expectedErr, decodedError["error"], t)
+				helpers.Expect(tc.expectedErr, decodedError["error"], t)
 			}()
 		})
 	}
@@ -220,7 +222,7 @@ func TestServer_DeleteProduct(t *testing.T) {
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			poolMock.delete = func(id server.Id) error {
-				expect(tc.id, id, t)
+				helpers.Expect(tc.id, id, t)
 				return tc.expectedErr
 			}
 
@@ -229,10 +231,10 @@ func TestServer_DeleteProduct(t *testing.T) {
 				fmt.Sprintf("http://%s/products/%d", addr, tc.id),
 				&bytes.Buffer{},
 			)
-			expect(nil, err, t)
+			helpers.Expect(nil, err, t)
 
 			res, err := client.Do(req)
-			expect(nil, err, t)
+			helpers.Expect(nil, err, t)
 			func() {
 				defer func(Body io.ReadCloser) {
 					if err := Body.Close(); err != nil {
@@ -240,7 +242,7 @@ func TestServer_DeleteProduct(t *testing.T) {
 					}
 				}(res.Body)
 
-				expect(tc.expectedStatusCode, res.StatusCode, t)
+				helpers.Expect(tc.expectedStatusCode, res.StatusCode, t)
 				if tc.expectedStatusCode == http.StatusNoContent {
 					return // nothing to parse
 				}
@@ -250,7 +252,7 @@ func TestServer_DeleteProduct(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				expect(tc.expectedErr, decodedError["error"], t)
+				helpers.Expect(tc.expectedErr, decodedError["error"], t)
 			}()
 		})
 	}

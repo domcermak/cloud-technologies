@@ -1,9 +1,10 @@
 package server
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 func NewServer(addr string, pool Pool) *http.Server {
@@ -26,7 +27,7 @@ func NewServer(addr string, pool Pool) *http.Server {
 	return &http.Server{
 		Handler:      router,
 		Addr:         addr,
-		WriteTimeout: time.Second,
-		ReadTimeout:  time.Second,
+		WriteTimeout: time.Second * 10,
+		ReadTimeout:  time.Second * 10,
 	}
 }

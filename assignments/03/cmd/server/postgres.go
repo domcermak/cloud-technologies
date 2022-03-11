@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+
 	"github.com/jackc/pgx"
 )
 
@@ -91,13 +92,32 @@ func (db *Postgres) DeleteAllProducts() error {
 	return err
 }
 
-func (db *Postgres) InsertProduct(product Product) error {
-	_, err := db.conn.Exec(
-		"INSERT INTO public.products (name, price, amount) VALUES ($1, $2, $3)",
-		product.Name,
-		product.Price,
-		product.Amount,
-	)
+func (db *Postgres) ReplaceAllWith(products []Product) error {
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec("delete from products"); err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	for _, product := range products {
+		if _, err := tx.Exec(
+			"INSERT INTO public.products (id, name, price, amount) VALUES ($1, $2, $3, $4)",
+			product.Id,
+			product.Name,
+			product.Price,
+			product.Amount,
+		); err != nil {
+			_ = tx.Rollback()
+			return err
+		}
+	}
+	defer func(tx *pgx.Tx) {
+		_ = tx.Commit()
+	}(tx)
 
 	return err
 }

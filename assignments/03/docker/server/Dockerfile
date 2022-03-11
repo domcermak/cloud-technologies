@@ -9,7 +9,7 @@ RUN mkdir -p ${APP_PATH}
 
 COPY go.mod ${BASE_PATH}
 COPY go.sum ${BASE_PATH}
-COPY ./assignments/03/main.go ${APP_PATH}
+COPY ./assignments/03/server.go ${APP_PATH}
 COPY ./assignments/03/cmd ${APP_PATH}/cmd
 
 WORKDIR ${BASE_PATH}

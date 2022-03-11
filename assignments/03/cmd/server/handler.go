@@ -2,9 +2,10 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type Handler struct {
@@ -18,6 +19,7 @@ func NewHandler(pool Pool) *Handler {
 }
 
 func (h *Handler) ListProductsHandler(w http.ResponseWriter, r *http.Request) {
+	r.Close = true
 	data, statusCode := marshal(func() (interface{}, error) {
 		return h.pool.ListProducts()
 	}, http.StatusOK)
@@ -27,6 +29,7 @@ func (h *Handler) ListProductsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetProductHandler(w http.ResponseWriter, r *http.Request) {
+	r.Close = true
 	data, statusCode := marshal(func() (interface{}, error) {
 		id, err := parseId(r)
 		if err != nil {
@@ -40,6 +43,7 @@ func (h *Handler) GetProductHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 func (h *Handler) UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
+	r.Close = true
 	data, statusCode := marshal(func() (interface{}, error) {
 		id, err := parseId(r)
 		if err != nil {
@@ -58,6 +62,7 @@ func (h *Handler) UpdateProductHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(data)
 }
 func (h *Handler) DeleteProductHandler(w http.ResponseWriter, r *http.Request) {
+	r.Close = true
 	data, statusCode := marshal(func() (interface{}, error) {
 		id, err := parseId(r)
 		if err != nil {
