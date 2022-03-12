@@ -2,11 +2,14 @@ package client
 
 import (
 	"bufio"
-	"domcermak/ctc/assignments/03/cmd/common"
 	"fmt"
-	"github.com/pkg/errors"
 	"io"
+	"regexp"
 	"strings"
+
+	"github.com/pkg/errors"
+
+	"domcermak/ctc/assignments/03/cmd/common"
 )
 
 type CommandExecutionerFn func(options map[string]interface{}) (string, error)
@@ -109,16 +112,14 @@ func (cmd *CommandLine) parseCommand() (string, map[string]interface{}, error) {
 	}
 
 	items := strings.Fields(trimmed)
-	commandName, args := items[0], items[1:]
+	commandName, args := items[0], strings.Join(items[1:], " ")
+
+	re := regexp.MustCompile("(\\w+)=(\"[^\"]+\"|[\\w0-9]+)")
+	matches := re.FindAllStringSubmatch(args, -1)
 
 	mappedArgs := make(map[string]interface{})
-	for _, arg := range args {
-		split := strings.Split(arg, "=")
-		if len(split) != 2 {
-			return "", nil, errors.Errorf("cannot parse argument `%v` of command `%v`", arg, commandName)
-		}
-
-		mappedArgs[split[0]] = split[1]
+	for _, match := range matches {
+		mappedArgs[match[1]] = strings.TrimSuffix(strings.TrimPrefix(match[2], "\""), "\"")
 	}
 
 	return commandName, mappedArgs, nil
