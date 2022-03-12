@@ -10,7 +10,6 @@ services:
     depends_on:
       - 'postgres_production'
     environment:
-      SERVER_ADDR: 'localhost:1234'
       PG_HOST: 'postgres_production'
       PG_PORT: '5432'
       PG_DATABASE: 'postgres'

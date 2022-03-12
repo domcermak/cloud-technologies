@@ -19,7 +19,12 @@ RUN go mod download
 
 WORKDIR ${APP_PATH}
 
-CMD go run server.go -server_address="${SERVER_ADDR}" \
+EXPOSE 1234
+
+# replacing 0.0.0.0 with localhost ends up in empty response error
+# because the server is not listening on the correct host
+# https://stackoverflow.com/questions/52524289/docker-empty-response-from-server
+CMD go run server.go -server_address="0.0.0.0:1234" \
                      -pg_host="${PG_HOST}" \
                      -pg_port=${PG_PORT} \
                      -pg_database="${PG_DATABASE}" \
