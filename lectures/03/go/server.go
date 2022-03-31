@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func hello(w http.ResponseWriter, _ *http.Request) {
+func hello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "hello\n")
 }
 

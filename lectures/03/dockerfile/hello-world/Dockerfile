@@ -1,2 +1,6 @@
-FROM ubuntu
-CMD echo hello world
+FROM ubuntu:21.04
+
+
+ADD
+
+CMD echo "hello world"

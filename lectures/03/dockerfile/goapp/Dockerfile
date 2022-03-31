@@ -7,3 +7,5 @@ WORKDIR /opt
 COPY myapp myappd
 
 ENTRYPOINT ["./myapp"]
+
+CMD ["test"]
