@@ -10,6 +10,11 @@ func main() {
 	fmt.Println("starting...")
 
 	flags := server.ParseFlags()
+	if flags.LogLevel == server.Debug {
+		fmt.Println("starting with flags:")
+		fmt.Println(flags)
+	}
+
 	postgres, err := server.NewPostgres(
 		flags.PgHost,
 		uint16(flags.PgPort),

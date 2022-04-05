@@ -2,9 +2,8 @@ version: '3.7'
 
 services:
   ctc_server:
-    build:
-      context: ../../..
-      dockerfile: assignments/03/docker/server/Dockerfile
+    image: 'domcermak/ctc_server'
+    container_name: 'ctc_server'
     ports:
       - '1234:1234'
     depends_on:
@@ -15,11 +14,13 @@ services:
       PG_DATABASE: 'postgres'
       PG_USERNAME: 'postgres'
       PG_PASSWORD: 'postgres'
+      LOG_LEVEL: 'info'
     networks:
       - ctc_network
 
   postgres_production:
     image: 'postgres:14.2-alpine'
+    container_name: 'postgres_production'
     restart: 'always'
     environment:
       POSTGRES_USER: 'postgres'
@@ -27,10 +28,16 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - ./sql/structure.sql:/docker-entrypoint-initdb.d/create.sql
-      - ./sql/data.sql:/docker-entrypoint-initdb.d/fillin.sql
+      - db-data:/var/lib/postgresql/data
+      - ./docker/sql/structure.sql:/docker-entrypoint-initdb.d/create.sql
+      - ./docker/sql/data.sql:/docker-entrypoint-initdb.d/fillin.sql
     networks:
       - ctc_network
 
+volumes:
+  db-data:
+    external: false
+
 networks:
-  ctc_network: {}
+  ctc_network:
+    external: false

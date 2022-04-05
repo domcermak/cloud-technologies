@@ -12,7 +12,7 @@ Product management API
    3. Include simple testing client in your repository
 
 ## Run server
-> docker-compose -f docker/docker-compose.yml up
+> docker-compose up
 
 ## Run client
 > go run client.go

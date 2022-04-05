@@ -24,9 +24,14 @@ EXPOSE 1234
 # replacing 0.0.0.0 with localhost ends up in empty response error
 # because the server is not listening on the correct host
 # https://stackoverflow.com/questions/52524289/docker-empty-response-from-server
-CMD go run server.go -server_address="0.0.0.0:1234" \
-                     -pg_host="${PG_HOST}" \
-                     -pg_port=${PG_PORT} \
-                     -pg_database="${PG_DATABASE}" \
-                     -pg_username="${PG_USERNAME}" \
-                     -pg_password="${PG_PASSWORD}"
+
+# Using only CMD because CMD is ommited when combined with ENTRYPOINT
+# https://stackoverflow.com/questions/54447913/cmd-doesnt-run-after-entrypoint-in-dockerfile
+CMD go run server.go \
+    -server_address="0.0.0.0:1234" \
+    -pg_host="${PG_HOST}" \
+    -pg_port=${PG_PORT} \
+    -pg_database="${PG_DATABASE}" \
+    -pg_username="${PG_USERNAME}" \
+    -pg_password="${PG_PASSWORD}" \
+    -log_level="${LOG_LEVEL}"
