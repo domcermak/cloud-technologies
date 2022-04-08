@@ -12,11 +12,7 @@
 
 ### Etcd kv server
 
-* GET/POST/DELETE
-* read past versions
-* watch client
-* compare and swap client
-
+* GET/POST/LIST/DELETE keys
 
 ### Assignment
 * Etcd server as docker compose 
