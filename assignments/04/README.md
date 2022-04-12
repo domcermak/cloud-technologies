@@ -27,6 +27,6 @@
 3. Build image and push
    ```shell
    docker build -t mydockeraccount/myapp:1.0.0 .
-   docker mydockeraccount/myapp:1.0.0
+   docker push mydockeraccount/myapp:1.0.0
    ```
 
