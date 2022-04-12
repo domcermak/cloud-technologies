@@ -12,7 +12,7 @@
 
 ### Etcd kv server
 
-* GET/POST/LIST/DELETE keys
+* GET/POST/DELETE keys
 
 ### Assignment
 * Etcd server as docker compose 
