@@ -1,6 +1,7 @@
 
-
 # Docker compose
+
+### Assignment
 
 1. Bundle application from assignment 3 with database as docker compose file
    1. All images must be public 
@@ -8,7 +9,8 @@
 3. Use separate docker network bridge
 
 
-# Example way hot to build container containing Go binary
+### Example way hot to build container containing Go binary
+
 1. (Windows Only) [Cross compile to linux](https://stackoverflow.com/a/43945772)
    ```shell
    set GOARCH=amd64

@@ -10,11 +10,12 @@
 3. Add `etcdctl.exe` to your PATH
 
 
-### Etcd kv server
-
-* GET/POST/DELETE keys
-
 ### Assignment
-* Etcd server as docker compose 
-* Grpc server as docker compose
-* Go grpc client
+
+1. Create GRPC server and client application
+2. GRPC server communicates with Etcd server using go etcd library
+3. GRPC client communicates with GRPC server
+4. GRPC server API should support at least GET/POST/DELETE operations defined using Protobuf
+5. Bundle GRPC server together with Etcd as docker compose file
+
+

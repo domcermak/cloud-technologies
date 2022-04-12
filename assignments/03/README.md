@@ -1,6 +1,9 @@
 
+# Go REST Api
 
-## Product management API
+### Assignment
+
+Product management API
 
 1. Create golang server app that provides API for managing list of products
    1. Product(name, price, amount)
