@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  etcd:
+    image: 'bitnami/etcd:3.5-debian-10'
+    container_name: 'etcd'
+    environment:
+      ALLOW_NONE_AUTHENTICATION: 'yes'
+      ETCD_ADVERTISE_CLIENT_URLS: 'http://0.0.0.0:2379'
+    ports:
+      - '2379:2379'
+      - '2380:2380'
+    networks:
+      - etcd_network
+
+  grpc_server:
+    build:
+      context: ../..
+      dockerfile: ./assignments/05/server/Dockerfile
+    container_name: 'grpc_server'
+    environment:
+      ETCD_HOST: 'etcd'
+      ETCD_PORT: '2379'
+    ports:
+      - '8080:8080'
+    depends_on:
+      - etcd
+    networks:
+      - etcd_network
+
+
+networks:
+  etcd_network:
+    external: false
