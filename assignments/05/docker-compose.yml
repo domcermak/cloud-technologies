@@ -13,11 +13,9 @@ services:
     networks:
       - etcd_network
 
-  grpc_server:
-    build:
-      context: ../..
-      dockerfile: ./assignments/05/server/Dockerfile
-    container_name: 'grpc_server'
+  grpc_proxy_server:
+    image: 'domcermak/grpc_proxy_server:1.0-apline3.15'
+    container_name: 'grpc_proxy_server'
     environment:
       ETCD_HOST: 'etcd'
       ETCD_PORT: '2379'

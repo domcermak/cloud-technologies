@@ -18,8 +18,6 @@ RUN go mod download
 
 WORKDIR ${APP_PATH}
 
-EXPOSE 8080
-
 CMD go run server.go \
     -server_address=":8080" \
     -etcd_server_address="${ETCD_HOST}:${ETCD_PORT}"

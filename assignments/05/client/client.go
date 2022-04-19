@@ -19,7 +19,7 @@ func NewClient(addr string) (*Client, error) {
 	ctx, _ := context.WithTimeout(context.Background(), 3*time.Second)
 	conn, err := grpc.DialContext(
 		ctx, addr,
-		grpc.WithBlock(),
+		// grpc.WithReturnConnectionError(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
