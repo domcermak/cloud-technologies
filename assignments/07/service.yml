@@ -1,13 +1,128 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: etcd
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: etcd
+  labels:
+    app: etcd
+  namespace: etcd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etcd
+  serviceName: etcd
+  template:
+    metadata:
+      labels:
+        app: etcd
+    spec:
+      containers:
+        - name: etcd
+          image: quay.io/coreos/etcd:v3.5.2
+          ports:
+            - containerPort: 2379
+              name: client
+            - containerPort: 2380
+              name: peer
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: client
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 5
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /var/run/etcd
+              name: data
+          command:
+            - /bin/sh
+            - -c
+            - |
+              PEERS="etcd-0=http://${HOSTNAME}:2380"
+              exec etcd --name ${HOSTNAME} \
+                --listen-peer-urls http://0.0.0.0:2380 \
+                --listen-client-urls http://0.0.0.0:2379 \
+                --advertise-client-urls http://${HOSTNAME}.etcd:2379 \
+                --initial-advertise-peer-urls http://${HOSTNAME}.etcd:2380 \
+                --initial-cluster-token etcd-cluster-1 \
+                --initial-cluster ${PEERS} \
+                --initial-cluster-state new \
+                --data-dir /var/run/etcd/default.etcd
+  updateStrategy:
+    type: RollingUpdate
+  podManagementPolicy: Parallel
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 8Gi
+        storageClassName: local-path
+        volumeMode: Filesystem
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx
+  name: etcd
+spec:
+  clusterIP: None
+  ports:
+    - port: 2379
+      name: client
+    - port: 2380
+      name: peer
+  selector:
+    app: etcd
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-proxy-server-deployment
   labels:
-    run: nginx
+    app: grpc-proxy-server
+  namespace: etcd
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: grpc-proxy-server
+  template:
+    metadata:
+      labels:
+        app: grpc-proxy-server
+    spec:
+      containers:
+        - name: grpc-proxy-server
+          image: domcermak/grpc_proxy_server:1.0-apline3.15
+          env:
+            - name: ETCD_PORT
+              value: "2379"
+            - name: ETCD_HOST
+              value: "etcd"
+          ports:
+            - containerPort: 8080
+              name: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-proxy-server
 spec:
   ports:
-    - port: 80
-      protocol: TCP
+    - name: http
+      targetPort: default
+      port: 8080
   selector:
-    run: nginx
+    app: grpc-proxy-server
